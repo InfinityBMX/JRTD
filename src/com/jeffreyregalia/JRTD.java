@@ -127,9 +127,6 @@ public class JRTD implements Runnable{
 
    }
    
-   /**
-    * Rewrite this method for your game
-    */
    protected void render(Graphics2D g){
 	   for(Tower tower : towers){
 		   tower.render(g);
