@@ -1,5 +1,7 @@
 package com.jeffreyregalia;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,5 +15,10 @@ public class Node {
 		this.y = y;
 		this.edges = new ArrayList<Edge>();
 		this.backtrack = new ArrayList<Edge>();
+	}
+	
+	public void render(Graphics g){
+		g.setColor( new Color(0,0,255));
+		g.fillRect(x, y, 1, 1);
 	}
 }
