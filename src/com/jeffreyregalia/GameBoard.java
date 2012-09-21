@@ -25,4 +25,17 @@ public class GameBoard {
 		
 		return nodes;
 	}
+	
+	public ArrayList<Node> getNodesInRect(int x1, int y1, int x2, int y2){
+		ArrayList<Node> nodes = new ArrayList<Node>();
+		for(int x=0; x<rows; x++)
+			for(int y=0; y<columns; y++){
+				int x0 = gameboard[x][y].x;
+				int y0 = gameboard[x][y].y;
+				if((x1 > x0 && x0 > x2) || (x1 < x0 && x0 < x2))
+					if((y1 > y0 && y0 > y2) || (y1 < y0 && y0 < y2))
+						nodes.add(gameboard[x][y]);		
+			}
+		return nodes;
+	}
 }

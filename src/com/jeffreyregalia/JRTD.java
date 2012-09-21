@@ -67,11 +67,11 @@ public class JRTD implements Runnable{
       long deltaLoop;
       
       for(int i=0;i<3;i++)enemies.add(new Enemy(0,random.nextInt(HEIGHT), 10));
-      towers.add(new Tower(100,200,WIDTH/2,HEIGHT/2));
-      towers.add(new Tower(100,200, WIDTH/4,HEIGHT/4));
-      towers.add(new Tower(100,200, WIDTH*3/4,HEIGHT*3/4));
-      towers.add(new Tower(100,200, WIDTH/4,HEIGHT*3/4));
-      towers.add(new Tower(100,200, WIDTH*3/4,HEIGHT/4));
+      this.addTower(50,200,WIDTH/2,HEIGHT/2);
+      this.addTower(50,200, WIDTH/4,HEIGHT/4);
+      this.addTower(50,200, WIDTH*3/4,HEIGHT*3/4);
+      this.addTower(50,200, WIDTH/4,HEIGHT*3/4);
+      this.addTower(50,200, WIDTH*3/4,HEIGHT/4);
       
       while(running){
          beginLoopTime = System.nanoTime();
@@ -107,7 +107,7 @@ public class JRTD implements Runnable{
    
    ArrayList<Tower> towers = new ArrayList<Tower>();
    ArrayList<Enemy> enemies = new ArrayList<Enemy>();
-   GameBoard gameBoard = new GameBoard(WIDTH/50,HEIGHT/50,50,50);
+   GameBoard gameBoard = new GameBoard(WIDTH/10,HEIGHT/10,10,10);
 
    protected void update(int deltaTime){
 	   for(int i = 0; i < enemies.size(); i++){
@@ -120,7 +120,7 @@ public class JRTD implements Runnable{
 		   for(Enemy enemy : enemies)
 			   enemy.update(deltaTime);
 	   }
-	   for(int i = enemies.size(); i < 20; i++)
+	   if(enemies.size() < 20)
 		   enemies.add(new Enemy(0,random.nextInt(HEIGHT-200)+100, 10));
 	   for(Tower tower : towers){
 		   tower.update(deltaTime);
@@ -140,8 +140,22 @@ public class JRTD implements Runnable{
    }
    
    public static void main(String [] args){
-      JRTD ex = new JRTD();
-      new Thread(ex).start();
+	   JRTD ex = new JRTD();
+	   new Thread(ex).start();
+   }
+
+   // Check gameboard for obstacles and add tower if none exist
+   public boolean addTower(int size, int radius, int x, int y){
+	   ArrayList<Node> testNodes = gameBoard.getNodesInRect((int) (x-.5*size), (int) (y - .5*size), (int) (x+.5*size), (int) (y+.5*size));
+	   for(Node node : testNodes)
+		   if(node.isUsed())
+			   return false;
+	   
+	   towers.add(new Tower(size,radius,x,y));
+	   for(Node node : testNodes)
+		   node.use();
+
+	   return true;
    }
 
 }
