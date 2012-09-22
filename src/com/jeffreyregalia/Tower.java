@@ -53,7 +53,7 @@ public class Tower implements Entity{
 			g.setColor( new Color (150, 150, 0));
 		else
 			g.setColor( new Color(0,0,0));
-		g.fillOval(x-size/2, y-size/2, size, size);
+		g.fillRect(x-size/2, y-size/2, size, size);
 		//draw radius
 		if(target == null){
 			g.setColor( new Color(0,255,0));
@@ -63,6 +63,7 @@ public class Tower implements Entity{
 		g.drawOval(x-radius, y-radius, radius*2, radius*2);
 		if(targetPoint != null){
 			//if(attacked){
+				g.setColor( new Color(0,0,0));
 				g.drawLine(x,y,(int) targetPoint.getX(),(int) targetPoint.getY());
 				attackFrames++;
 				if(attackFrames > 5){

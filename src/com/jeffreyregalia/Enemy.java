@@ -35,12 +35,12 @@ public class Enemy implements Entity{
 	
 	public void render(Graphics g){
 		g.setColor( new Color(0,0,0));
-		g.fillRect(x, y, size, size);
+		g.fillOval(x, y, size, size);
 		//Draw hit box
-		g.setColor( new Color(255,255,255));
-		for(Point point: getHitBox()){
-			g.fillRect(point.x, point.y, 1, 1);
-		}
+//		g.setColor( new Color(255,255,255));
+//		for(Point point: getHitBox()){
+//			g.fillRect(point.x, point.y, 1, 1);
+//		}
 	}
 
 	public Point[] getHitBox(){

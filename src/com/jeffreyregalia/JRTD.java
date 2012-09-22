@@ -107,7 +107,7 @@ public class JRTD implements Runnable{
    
    ArrayList<Tower> towers = new ArrayList<Tower>();
    ArrayList<Enemy> enemies = new ArrayList<Enemy>();
-   GameBoard gameBoard = new GameBoard(WIDTH/10,HEIGHT/10,10,10);
+   GameBoard gameBoard = new GameBoard(HEIGHT/10,WIDTH/10,10,10);
 
    protected void update(int deltaTime){
 	   for(int i = 0; i < enemies.size(); i++){
@@ -135,8 +135,10 @@ public class JRTD implements Runnable{
 	   for(Enemy enemy : enemies)
 		   enemy.render(g);
 	   
-	   for(Node node : gameBoard.getNodeList())
-		   node.render(g);
+//	   for(Node node : gameBoard.getNodeList())
+//		   node.render(g);
+	   
+//	   gameBoard.renderEdges(g);
    }
    
    public static void main(String [] args){
