@@ -147,7 +147,7 @@ public class JRTD implements Runnable{
 		   }
 		   if(enemies.size() < maxEnemies)
 			   if(timeWaited >= spawnDelay){
-				   	enemies.add(new Enemy(gameBoard.getNode(4,0), 200));
+				   	enemies.add(new Enemy(gameBoard.getNode(4,0), 10));
 		   			timeWaited = 0;
 			   }
 		   for(Tower tower : towers){

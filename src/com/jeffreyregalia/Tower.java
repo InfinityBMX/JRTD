@@ -14,10 +14,10 @@ public class Tower implements Entity{
 	double targetDistance;
 	Point targetPoint;
 	int timeSinceAttack = 0;
-	int attackTime = 150;
+	int attackTime = 250;
 	int attackFrames = 0;
 	boolean attacked = false;
-	int power = 5;
+	int power = 2;
 	
 	Tower(int size, int radius, int x, int y){
 		this.size = size;

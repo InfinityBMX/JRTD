@@ -23,7 +23,7 @@ public class Enemy implements Entity{
 		this.y = currentNode.y;
 		this.currentNode = currentNode;
 		this.hp = hp;
-		this.size = (int) (hp*.1);
+		this.size = (int) (hp*2);
 		path = (LinkedList<Node>) finder.search(this.currentNode, new FinishLine());
 		targetNode = path.get(pathIndex);
 	}
@@ -43,7 +43,7 @@ public class Enemy implements Entity{
 		moved = xDirection * time * moveSpeed;
 		x += xDirection * time * moveSpeed;
 		y += yDirection * time * moveSpeed;
-		size = hp < 50 ? 5 : (int) (hp * .1);
+		size = hp * 2;
 		if(this.x == this.targetNode.x && this.y == targetNode.y){
 			if(this.targetNode != path.getLast()){
 				this.currentNode = this.targetNode;
