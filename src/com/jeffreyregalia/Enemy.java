@@ -3,18 +3,29 @@ package com.jeffreyregalia;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.util.LinkedList;
 
 public class Enemy implements Entity{
 	int x;
 	int y;
 	int size;
 	int hp;
+	Node targetNode;
+	Node currentNode;
+	LinkedList<Node> path;
+	PathFinder finder = new PathFinder();
+	int pathIndex = 0;
+	double moveSpeed;
+	double moved;
 	
-	Enemy(int x, int y, int hp){
-		this.x = x;
-		this.y = y;
+	Enemy(Node currentNode, int hp){
+		this.x = currentNode.x;
+		this.y = currentNode.y;
+		this.currentNode = currentNode;
 		this.hp = hp;
-		this.size = hp*5;
+		this.size = (int) (hp*.1);
+		path = (LinkedList<Node>) finder.search(this.currentNode, new FinishLine());
+		targetNode = path.get(pathIndex);
 	}
 	
 	public void attack(int damage){
@@ -26,16 +37,33 @@ public class Enemy implements Entity{
 	}
 	
 	public void update(int time){
-		x += time * .1;
-		size = hp * 5;
-		if(x > 800){
-			leaked();
+		int xDirection = this.x < this.targetNode.x ? 1 : (this.x == this.targetNode.x ? 0 : -1);
+		int yDirection = this.y < this.targetNode.y ? 1 : (this.y == this.targetNode.y ? 0 : -1);
+		moveSpeed = xDirection != 0 && yDirection != 0 ? Math.sqrt((.1*.1)/2) : .1;
+		moved = xDirection * time * moveSpeed;
+		x += xDirection * time * moveSpeed;
+		y += yDirection * time * moveSpeed;
+		size = hp < 50 ? 5 : (int) (hp * .1);
+		if(this.x == this.targetNode.x && this.y == targetNode.y){
+			if(this.targetNode != path.getLast()){
+				this.currentNode = this.targetNode;
+				this.targetNode = path.get(++pathIndex);
+			}else{
+				leaked();
+			}
 		}
 	}
 	
 	public void render(Graphics g){
 		g.setColor( new Color(0,0,0));
-		g.fillOval(x, y, size, size);
+		g.fillOval(x-size/2, y-size/2, size, size);
+		
+		//Draw path
+		g.setColor( new Color(0, 255, 0));
+		for(Node node : path)
+			node.render(g);
+		
+//		g.drawString("Move Speed: "+moved, 100, 100);
 		//Draw hit box
 //		g.setColor( new Color(255,255,255));
 //		for(Point point: getHitBox()){
@@ -58,5 +86,15 @@ public class Enemy implements Entity{
 	
 	public void leaked(){
 		this.hp = 0;
+	}
+	
+	public Node getNode(){
+		return this.currentNode;
+	}
+	
+	public void recalculatePath(){
+		path = (LinkedList<Node>) finder.search(this.currentNode, new FinishLine());
+		pathIndex = 0;
+		targetNode = path.get(pathIndex);
 	}
 }

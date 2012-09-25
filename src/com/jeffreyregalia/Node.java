@@ -38,4 +38,12 @@ public class Node {
 	public boolean isUsed(){
 		return this.used;
 	}
+	
+	public boolean isAvailableForPathing(){
+//		for(Edge edge : edges){
+//			if(edge.dst.isUsed())
+//				return false;
+//		}
+		return true;
+	}
 }

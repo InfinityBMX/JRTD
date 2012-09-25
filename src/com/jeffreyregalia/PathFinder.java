@@ -31,7 +31,7 @@ public class PathFinder {
 	
 	public Node step(Filter<Node> target){
 		Node head = this.frontline.pollFirst();
-		if(head == null)
+		if(head == null || head.isUsed() || !head.isAvailableForPathing())
 			return null;
 		
 		this.visit(head);

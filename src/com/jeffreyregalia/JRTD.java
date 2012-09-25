@@ -1,9 +1,11 @@
 package com.jeffreyregalia;
 
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 import java.util.Random;
@@ -36,6 +38,7 @@ public class JRTD implements Runnable{
       panel.add(canvas);
       
       canvas.addMouseListener(new MouseControl());
+      canvas.addMouseMotionListener(new MouseControl());
       
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       frame.pack();
@@ -50,11 +53,32 @@ public class JRTD implements Runnable{
    
         
    private class MouseControl extends MouseAdapter{
+      public void mouseClicked(MouseEvent e){
+    	  if(canPlaceTowers){
+    		  addTower(45,200,e.getX(),e.getY());
+    		  //recalculatePaths = true;
+    	  } else {
+    		  gameStarted = true;
+    	  }
+      }
       
+      public void mouseMoved(MouseEvent e){
+    	  if(canPlaceTowers)
+    		  if(cursorTower != null){
+    			  cursorTower.setLocation(e.getX(), e.getY());
+    		  }
+      }
    }
    
    long desiredFPS = 60;
    long desiredDeltaLoop = (1000*1000*1000)/desiredFPS;
+   int maxEnemies = 10;
+   int maxTowers = 10;
+   int spawnDelay = 150;
+   int timeWaited = 0;
+   boolean canPlaceTowers = true;
+   boolean recalculatePaths = false;
+   boolean gameStarted = false;
     
    boolean running = true;
    
@@ -65,13 +89,6 @@ public class JRTD implements Runnable{
       long currentUpdateTime = System.nanoTime();
       long lastUpdateTime;
       long deltaLoop;
-      
-      for(int i=0;i<3;i++)enemies.add(new Enemy(0,random.nextInt(HEIGHT), 10));
-      this.addTower(50,200,WIDTH/2,HEIGHT/2);
-      this.addTower(50,200, WIDTH/4,HEIGHT/4);
-      this.addTower(50,200, WIDTH*3/4,HEIGHT*3/4);
-      this.addTower(50,200, WIDTH/4,HEIGHT*3/4);
-      this.addTower(50,200, WIDTH*3/4,HEIGHT/4);
       
       while(running){
          beginLoopTime = System.nanoTime();
@@ -99,6 +116,7 @@ public class JRTD implements Runnable{
    
    private void render() {
       Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
+      g.setBackground( new Color(255,255,255));
       g.clearRect(0, 0, WIDTH, HEIGHT);
       render(g);
       g.dispose();
@@ -107,23 +125,39 @@ public class JRTD implements Runnable{
    
    ArrayList<Tower> towers = new ArrayList<Tower>();
    ArrayList<Enemy> enemies = new ArrayList<Enemy>();
-   GameBoard gameBoard = new GameBoard(HEIGHT/10,WIDTH/10,10,10);
+   GameBoard gameBoard = new GameBoard(HEIGHT/30,WIDTH/30,30,30);
+   FakeTower cursorTower = new FakeTower();
 
    protected void update(int deltaTime){
-	   for(int i = 0; i < enemies.size(); i++){
-		   if(!enemies.get(i).isAlive()) enemies.remove(i);
-	   }
-	   if(!enemies.isEmpty()){
-		   for(Tower tower : towers){
-			   tower.findTarget(enemies);
+	   timeWaited += deltaTime;
+	   if(gameStarted){
+		   for(int i = 0; i < enemies.size(); i++){
+			   if(recalculatePaths){
+				   enemies.get(i).recalculatePath();
+			   }
+			   if(!enemies.get(i).isAlive()) enemies.remove(i);
 		   }
-		   for(Enemy enemy : enemies)
-			   enemy.update(deltaTime);
+		   recalculatePaths = false;
+		   if(!enemies.isEmpty()){
+			   for(Tower tower : towers){
+				   tower.findTarget(enemies);
+			   }
+			   for(Enemy enemy : enemies)
+				   enemy.update(deltaTime);
+		   }
+		   if(enemies.size() < maxEnemies)
+			   if(timeWaited >= spawnDelay){
+				   	enemies.add(new Enemy(gameBoard.getNode(4,0), 200));
+		   			timeWaited = 0;
+			   }
+		   for(Tower tower : towers){
+			   tower.update(deltaTime);
+		   }
 	   }
-	   if(enemies.size() < 20)
-		   enemies.add(new Enemy(0,random.nextInt(HEIGHT-200)+100, 10));
-	   for(Tower tower : towers){
-		   tower.update(deltaTime);
+	   if(towers.size() >= maxTowers){
+		   cursorTower = null;
+		   canPlaceTowers = false;
+		   gameStarted = true;
 	   }
 
    }
@@ -135,6 +169,8 @@ public class JRTD implements Runnable{
 	   for(Enemy enemy : enemies)
 		   enemy.render(g);
 	   
+	   if(cursorTower != null)
+		   cursorTower.render(g);
 //	   for(Node node : gameBoard.getNodeList())
 //		   node.render(g);
 	   
@@ -159,5 +195,4 @@ public class JRTD implements Runnable{
 
 	   return true;
    }
-
 }

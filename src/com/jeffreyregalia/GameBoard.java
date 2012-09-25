@@ -28,7 +28,15 @@ public class GameBoard {
 					this.edges.add(new Edge(gameboard[y][x], gameboard[y][x-1], 1.0f));
 				if(x < (columns-1))
 					this.edges.add(new Edge(gameboard[y][x], gameboard[y][x+1], 1.0f));
-			}
+/*				if(x != 0 && y != 0)
+					this.edges.add(new Edge(gameboard[y][x], gameboard[y-1][x-1], (float) Math.sqrt(2)));
+				if(x != columns-1 && y != 0)
+					this.edges.add(new Edge(gameboard[y][x], gameboard[y-1][x+1], (float) Math.sqrt(2)));
+				if(x != columns-1 && y != rows -1)
+					this.edges.add(new Edge(gameboard[y][x], gameboard[y+1][x+1], (float) Math.sqrt(2)));
+				if(x != 0 && y != rows -1)
+					this.edges.add(new Edge(gameboard[y][x], gameboard[y+1][x-1], (float) Math.sqrt(2)));
+*/			}
 	
 	}
 	
@@ -58,5 +66,13 @@ public class GameBoard {
 		for(Edge edge : edges){
 			edge.render(g);
 		}
+	}
+	
+	public Node[][] getGameboard(){
+		return this.gameboard;
+	}
+	
+	public Node getNode(int y, int x){
+		return this.gameboard[y][x];
 	}
 }
