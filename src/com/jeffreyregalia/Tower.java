@@ -85,14 +85,13 @@ public class Tower implements Entity{
 			for(Enemy enemy: enemyList){
 				for(Point point: enemy.getHitBox()){
 					double distance = Math.sqrt((x-point.getX())*(x-point.getX())+(y-point.getY())*(y-point.getY()));
-					if(distance < radius){
-						this.target = enemy;
+					if(distance < radius)
 						if(tempDistance == 0.0 || distance < tempDistance){
 							tempDistance = distance;
 							this.targetDistance = distance;
 							this.targetPoint = point;
+							this.target = enemy;
 						}
-					}
 				}
 			}
 			if(tempDistance == 0.0){
