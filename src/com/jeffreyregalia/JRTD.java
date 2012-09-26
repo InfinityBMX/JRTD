@@ -16,8 +16,8 @@ import javax.swing.JPanel;
 
 public class JRTD implements Runnable{
    
-   final int WIDTH = 800;
-   final int HEIGHT = 600;
+   final int WIDTH = 1024;
+   final int HEIGHT = 768;
 
    JFrame frame;
    Canvas canvas;
@@ -32,7 +32,7 @@ public class JRTD implements Runnable{
       panel.setLayout(null);
       
       canvas = new Canvas();
-      canvas.setBounds(0, 0, WIDTH, HEIGHT);
+      canvas.setBounds(5, 5, WIDTH, HEIGHT);
       canvas.setIgnoreRepaint(true);
       
       panel.add(canvas);
@@ -55,7 +55,8 @@ public class JRTD implements Runnable{
    private class MouseControl extends MouseAdapter{
       public void mouseClicked(MouseEvent e){
     	  if(canPlaceTowers){
-    		  addTower(45,200,e.getX(),e.getY());
+			  Node placementNode = gameBoard.getNodeAtLocation(e.getX(), e.getY());
+    		  addTower(32,200,placementNode.x,placementNode.y);
     		  //recalculatePaths = true;
     	  } else {
     		  gameStarted = true;
@@ -65,7 +66,8 @@ public class JRTD implements Runnable{
       public void mouseMoved(MouseEvent e){
     	  if(canPlaceTowers)
     		  if(cursorTower != null){
-    			  cursorTower.setLocation(e.getX(), e.getY());
+    			  Node placementNode = gameBoard.getNodeAtLocation(e.getX(), e.getY());
+    			  cursorTower.setLocation(placementNode.x, placementNode.y);
     		  }
       }
    }
@@ -73,7 +75,7 @@ public class JRTD implements Runnable{
    long desiredFPS = 60;
    long desiredDeltaLoop = (1000*1000*1000)/desiredFPS;
    int maxEnemies = 10;
-   int maxTowers = 10;
+   int maxTowers = 5;
    int spawnDelay = 150;
    int timeWaited = 0;
    boolean canPlaceTowers = true;
@@ -125,7 +127,7 @@ public class JRTD implements Runnable{
    
    ArrayList<Tower> towers = new ArrayList<Tower>();
    ArrayList<Enemy> enemies = new ArrayList<Enemy>();
-   GameBoard gameBoard = new GameBoard(HEIGHT/30,WIDTH/30,30,30);
+   GameBoard gameBoard = new GameBoard(HEIGHT/32,WIDTH/32,32,32);
    FakeTower cursorTower = new FakeTower();
 
    protected void update(int deltaTime){
@@ -171,8 +173,8 @@ public class JRTD implements Runnable{
 	   
 	   if(cursorTower != null)
 		   cursorTower.render(g);
-//	   for(Node node : gameBoard.getNodeList())
-//		   node.render(g);
+	   for(Node node : gameBoard.getNodeList())
+		   node.render(g);
 	   
 //	   gameBoard.renderEdges(g);
    }

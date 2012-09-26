@@ -75,4 +75,8 @@ public class GameBoard {
 	public Node getNode(int y, int x){
 		return this.gameboard[y][x];
 	}
+	
+	public Node getNodeAtLocation(int x, int y){
+		return this.gameboard[((y+32)/32)-1][((x+32)/32)-1];
+	}
 }
