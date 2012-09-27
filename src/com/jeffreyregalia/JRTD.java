@@ -8,7 +8,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -74,9 +76,9 @@ public class JRTD implements Runnable{
    
    long desiredFPS = 60;
    long desiredDeltaLoop = (1000*1000*1000)/desiredFPS;
-   int maxEnemies = 10;
+   int maxEnemies = 5;
    int maxTowers = 5;
-   int spawnDelay = 150;
+   int spawnDelay = 500;
    int timeWaited = 0;
    boolean canPlaceTowers = true;
    boolean recalculatePaths = false;
@@ -125,9 +127,9 @@ public class JRTD implements Runnable{
       bufferStrategy.show();
    }
    
-   ArrayList<Tower> towers = new ArrayList<Tower>();
-   ArrayList<Enemy> enemies = new ArrayList<Enemy>();
-   GameBoard gameBoard = new GameBoard(HEIGHT/32,WIDTH/32,32,32);
+   List<Tower> towers = new CopyOnWriteArrayList<Tower>();
+   List<Enemy> enemies = new CopyOnWriteArrayList<Enemy>();
+   GameBoard gameBoard = new GameBoard(WIDTH,HEIGHT);
    FakeTower cursorTower = new FakeTower();
 
    protected void update(int deltaTime){
@@ -149,7 +151,7 @@ public class JRTD implements Runnable{
 		   }
 		   if(enemies.size() < maxEnemies)
 			   if(timeWaited >= spawnDelay){
-				   	enemies.add(new Enemy(gameBoard.getNode(4,0), 10));
+				   	enemies.add(new Enemy(gameBoard.getNode(0,0), gameBoard.getMaxNode(),100));
 		   			timeWaited = 0;
 			   }
 		   for(Tower tower : towers){
@@ -165,6 +167,7 @@ public class JRTD implements Runnable{
    }
    
    protected void render(Graphics2D g){
+	   gameBoard.render(g);
 	   for(Tower tower : towers){
 		   tower.render(g);
 	   }

@@ -3,7 +3,7 @@ package com.jeffreyregalia;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.util.ArrayList;
+import java.util.List;
 
 public class Tower implements Entity{
 	int size;
@@ -79,7 +79,7 @@ public class Tower implements Entity{
 //		g.drawString("X: " + x + " Y: " + y, x, y);
 	}
 	
-	public void findTarget(ArrayList<Enemy> enemyList){
+	public void findTarget(List<Enemy> enemyList){
 		double tempDistance = 0.0;
 		if(target==null){
 			for(Enemy enemy: enemyList){

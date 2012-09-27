@@ -1,5 +1,6 @@
 package com.jeffreyregalia;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
@@ -8,15 +9,16 @@ public class GameBoard {
 	private final ArrayList<Edge> edges;
 	private final int rows;
 	private final int columns;
+	private final int nodeSize = 32;
 	
-	public GameBoard(int rows, int columns, int width, int height){
-		this.rows = rows;
-		this.columns = columns;
+	public GameBoard(int width, int height){
+		this.rows = height/nodeSize;
+		this.columns = width/nodeSize;
 		this.gameboard = new Node[rows][columns];
 		this.edges = new ArrayList<Edge>();
 		for(int y=0; y<rows; y++)
 			for(int x=0; x<columns; x++){
-				gameboard[y][x] = new Node((int) (x*width+.5*width),(int) (y*height+.5*height));
+				gameboard[y][x] = new Node((int) (x*nodeSize+.5*nodeSize),(int) (y*nodeSize+.5*nodeSize));
 			}
 		for(int y=0; y<rows; y++)
 			for(int x=0; x<columns; x++){
@@ -28,6 +30,7 @@ public class GameBoard {
 					this.edges.add(new Edge(gameboard[y][x], gameboard[y][x-1], 1.0f));
 				if(x < (columns-1))
 					this.edges.add(new Edge(gameboard[y][x], gameboard[y][x+1], 1.0f));
+				//diagonal edges
 /*				if(x != 0 && y != 0)
 					this.edges.add(new Edge(gameboard[y][x], gameboard[y-1][x-1], (float) Math.sqrt(2)));
 				if(x != columns-1 && y != 0)
@@ -78,5 +81,26 @@ public class GameBoard {
 	
 	public Node getNodeAtLocation(int x, int y){
 		return this.gameboard[((y+32)/32)-1][((x+32)/32)-1];
+	}
+	
+	public int getColumns(){
+		return this.columns;
+	}
+	
+	public int getRows(){
+		return this.rows;
+	}
+	
+	public Node getMaxNode(){
+		return getNode(this.rows-1,this.columns-1);
+	}
+	
+	public void render(Graphics g){
+		Node temp = getNode(0,0);
+		g.setColor( new Color(0,255,0));
+		g.fillRect((int) (temp.x-nodeSize*.5),(int) (temp.y-nodeSize*.5), nodeSize, nodeSize);
+		temp = getMaxNode();
+		g.setColor( new Color(255,0,0));
+		g.fillRect((int) (temp.x-nodeSize*.5),(int) (temp.y-nodeSize*.5), nodeSize, nodeSize);
 	}
 }
