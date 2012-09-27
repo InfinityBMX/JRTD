@@ -10,6 +10,7 @@ public class Tower implements Entity{
 	int radius;
 	int x;
 	int y;
+	Node myNode;
 	Enemy target;
 	double targetDistance;
 	Point targetPoint;
@@ -18,12 +19,14 @@ public class Tower implements Entity{
 	int attackFrames = 0;
 	boolean attacked = false;
 	int power = 2;
+	Projectile shot = null;
 	
-	Tower(int size, int radius, int x, int y){
+	Tower(int size, int radius, Node myNode){
 		this.size = size;
 		this.radius = radius;
-		this.x = x;
-		this.y = y;
+		this.myNode = myNode;
+		this.x = myNode.x;
+		this.y = myNode.y;
 	}
 	
 	public void update(int time){
@@ -35,12 +38,22 @@ public class Tower implements Entity{
 			this.targetPoint = null;
 		}else{
 			if(this.timeSinceAttack == this.attackTime){
-				this.target.attack(this.power);
-				this.timeSinceAttack = 0;
-				this.attacked = true;
-				if(this.target.getHP() < 1){
-					this.target = null;
+				if(shot == null){
+					attack();
+//					this.target.attack(this.power);
+					this.timeSinceAttack = 0;
+					this.attacked = true;
+					if(this.target.getHP() < 1){
+						this.target = null;
+					}
 				}
+			}
+		}
+		if(shot != null){
+			if(!shot.isAlive()){
+				shot = null;
+			}else{
+				shot.update(time);
 			}
 		}
 		// fire?
@@ -61,7 +74,10 @@ public class Tower implements Entity{
 			g.setColor( new Color(255,0,0));
 		}
 		g.drawOval(x-radius, y-radius, radius*2, radius*2);
-		if(targetPoint != null){
+		
+		if(shot != null)
+			shot.render(g);
+/*		if(targetPoint != null){
 			//if(attacked){
 				g.setColor( new Color(0,0,0));
 				g.drawLine(x,y,(int) targetPoint.getX(),(int) targetPoint.getY());
@@ -76,7 +92,7 @@ public class Tower implements Entity{
 			this.attacked = false;
 		}
 //		g.drawString("Distance: "+this.targetDistance,50,50);
-//		g.drawString("X: " + x + " Y: " + y, x, y);
+//		g.drawString("X: " + x + " Y: " + y, x, y);*/
 	}
 	
 	public void findTarget(List<Enemy> enemyList){
@@ -129,5 +145,9 @@ public class Tower implements Entity{
 	
 	public boolean isAlive(){
 		return true;
+	}
+	
+	public void attack(){
+		shot = new Projectile(this.myNode, this.target.getNextNode(), this.target);
 	}
 }

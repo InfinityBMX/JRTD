@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferStrategy;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -58,7 +57,7 @@ public class JRTD implements Runnable{
       public void mouseClicked(MouseEvent e){
     	  if(canPlaceTowers){
 			  Node placementNode = gameBoard.getNodeAtLocation(e.getX(), e.getY());
-    		  addTower(32,200,placementNode.x,placementNode.y);
+    		  addTower(32,200,placementNode);
     		  //recalculatePaths = true;
     	  } else {
     		  gameStarted = true;
@@ -77,7 +76,7 @@ public class JRTD implements Runnable{
    long desiredFPS = 60;
    long desiredDeltaLoop = (1000*1000*1000)/desiredFPS;
    int maxEnemies = 5;
-   int maxTowers = 5;
+   int maxTowers = 1;
    int spawnDelay = 500;
    int timeWaited = 0;
    boolean canPlaceTowers = true;
@@ -188,15 +187,13 @@ public class JRTD implements Runnable{
    }
 
    // Check gameboard for obstacles and add tower if none exist
-   public boolean addTower(int size, int radius, int x, int y){
-	   ArrayList<Node> testNodes = gameBoard.getNodesInRect((int) (x-.5*size), (int) (y - .5*size), (int) (x+.5*size), (int) (y+.5*size));
-	   for(Node node : testNodes)
-		   if(node.isUsed())
-			   return false;
+   public boolean addTower(int size, int radius, Node placementNode){
+
+	   if(placementNode.isUsed())
+		   return false;
 	   
-	   towers.add(new Tower(size,radius,x,y));
-	   for(Node node : testNodes)
-		   node.use();
+	   towers.add(new Tower(size,radius,placementNode));
+	   placementNode.use();
 
 	   return true;
    }

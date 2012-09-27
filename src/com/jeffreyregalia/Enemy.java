@@ -104,6 +104,10 @@ public class Enemy implements Entity{
 		return this.currentNode;
 	}
 	
+	public Node getNextNode(){
+		return this.targetNode;
+	}
+	
 	public void recalculatePath(){
 		path = (LinkedList<Node>) finder.search(this.currentNode, new FinishLine(finishNode));
 		pathIndex = 0;
