@@ -4,6 +4,8 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferStrategy;
@@ -22,6 +24,7 @@ public class JRTD implements Runnable{
 
    JFrame frame;
    Canvas canvas;
+   Canvas canvas2;
    BufferStrategy bufferStrategy;
    Random random = new Random();
    
@@ -29,17 +32,24 @@ public class JRTD implements Runnable{
       frame = new JFrame("Basic Game");
       
       JPanel panel = (JPanel) frame.getContentPane();
-      panel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+      panel.setPreferredSize(new Dimension(WIDTH, HEIGHT+155));
       panel.setLayout(null);
+      panel.setBackground(Color.BLACK);
       
       canvas = new Canvas();
-      canvas.setBounds(5, 5, WIDTH, HEIGHT);
+      canvas.setBounds(5, 160, WIDTH, HEIGHT);
       canvas.setIgnoreRepaint(true);
-      
+      canvas2 = new Canvas();
+      canvas2.setIgnoreRepaint(true);
+      canvas2.setBounds(5, 5, WIDTH, 150);
+      panel.add(canvas2);
       panel.add(canvas);
       
-      canvas.addMouseListener(new MouseControl());
-      canvas.addMouseMotionListener(new MouseControl());
+      MouseControl mouse = new MouseControl();
+      KeyControl keyboard = new KeyControl();
+      canvas.addMouseListener(mouse);
+      canvas.addMouseMotionListener(mouse);
+      canvas.addKeyListener(keyboard);
       
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       frame.pack();
@@ -52,12 +62,24 @@ public class JRTD implements Runnable{
       canvas.requestFocus();
    }
    
-        
+   private class KeyControl extends KeyAdapter{
+	   public void keyPressed(KeyEvent e){
+		   switch (e.getKeyCode()) {
+		   		case KeyEvent.VK_ESCAPE: running = false;
+		   				break;
+		   		case KeyEvent.VK_ENTER: canPlaceTowers = false;
+		   				gameStarted = true;
+		   				cursorTower = null;
+		   				break;
+		   }
+	   }
+   }
+   
    private class MouseControl extends MouseAdapter{
       public void mouseClicked(MouseEvent e){
     	  if(canPlaceTowers){
 			  Node placementNode = gameBoard.getNodeAtLocation(e.getX(), e.getY());
-    		  addTower(32,200,placementNode);
+    		  addTower(32,150,placementNode);
     		  //recalculatePaths = true;
     	  } else {
     		  gameStarted = true;
@@ -76,7 +98,7 @@ public class JRTD implements Runnable{
    long desiredFPS = 60;
    long desiredDeltaLoop = (1000*1000*1000)/desiredFPS;
    int maxEnemies = 5;
-   int maxTowers = 1;
+   int maxTowers = 10;
    int spawnDelay = 500;
    int timeWaited = 0;
    boolean canPlaceTowers = true;
@@ -115,9 +137,13 @@ public class JRTD implements Runnable{
         	 }
          }
       }
+      frame.dispose();
    }
    
    private void render() {
+	  Graphics2D g2 = (Graphics2D) canvas2.getGraphics();
+	  g2.setBackground( Color.WHITE );
+	  g2.clearRect(0, 0, WIDTH, 150);
       Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
       g.setBackground( new Color(255,255,255));
       g.clearRect(0, 0, WIDTH, HEIGHT);

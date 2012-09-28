@@ -18,8 +18,9 @@ public class Tower implements Entity{
 	int attackTime = 250;
 	int attackFrames = 0;
 	boolean attacked = false;
-	int power = 2;
+	int power = 1;
 	Projectile shot = null;
+	boolean selected;
 	
 	Tower(int size, int radius, Node myNode){
 		this.size = size;
@@ -27,6 +28,7 @@ public class Tower implements Entity{
 		this.myNode = myNode;
 		this.x = myNode.x;
 		this.y = myNode.y;
+		this.selected = true;
 	}
 	
 	public void update(int time){
@@ -39,13 +41,14 @@ public class Tower implements Entity{
 		}else{
 			if(this.timeSinceAttack == this.attackTime){
 				if(shot == null){
-					attack();
-//					this.target.attack(this.power);
-					this.timeSinceAttack = 0;
-					this.attacked = true;
 					if(this.target.getHP() < 1){
 						this.target = null;
+					}else{
+						attack();
+						this.timeSinceAttack = 0;
+						this.attacked = true;
 					}
+
 				}
 			}
 		}
@@ -68,12 +71,11 @@ public class Tower implements Entity{
 			g.setColor( new Color(0,0,0));
 		g.fillRect(x-size/2, y-size/2, size, size);
 		//draw radius
-		if(target == null){
-			g.setColor( new Color(0,255,0));
-		}else {
-			g.setColor( new Color(255,0,0));
+		if(this.selected){
+			g.setColor( new Color(100,200,100));
+			g.drawOval(x-radius, y-radius, radius*2, radius*2);
 		}
-		g.drawOval(x-radius, y-radius, radius*2, radius*2);
+
 		
 		if(shot != null)
 			shot.render(g);
@@ -148,6 +150,10 @@ public class Tower implements Entity{
 	}
 	
 	public void attack(){
-		shot = new Projectile(this.myNode, this.target.getNextNode(), this.target);
+		shot = new Projectile(this.myNode, this.target, this.power);
+	}
+	
+	public void selectTower(){
+		this.selected = true;
 	}
 }

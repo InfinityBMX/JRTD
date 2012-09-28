@@ -66,7 +66,7 @@ public class Enemy implements Entity{
 		int barPixels = (int)(hp/(float)maxHp*size-2);
 		barPixels = barPixels < 1 ? 1 : barPixels;
 		g.fillRect(x-size/2, y-size, size, 6);
-		g.drawString(""+hp, x-size/2, y-size);
+//		g.drawString(""+hp, x-size/2, y-size);
 		g.setColor( new Color(0,255,0));
 		g.fillRect(x-size/2+1, y-size+1, barPixels, 4);
 		
