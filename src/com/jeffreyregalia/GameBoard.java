@@ -30,6 +30,8 @@ public class GameBoard {
 					this.edges.add(new Edge(gameboard[y][x], gameboard[y][x-1], 1.0f));
 				if(x < (columns-1))
 					this.edges.add(new Edge(gameboard[y][x], gameboard[y][x+1], 1.0f));
+				if(y == 0 || y == rows-1 || x == 0 || x == columns - 1)
+					gameboard[y][x].use();
 				//diagonal edges
 /*				if(x != 0 && y != 0)
 					this.edges.add(new Edge(gameboard[y][x], gameboard[y-1][x-1], (float) Math.sqrt(2)));
@@ -40,6 +42,8 @@ public class GameBoard {
 				if(x != 0 && y != rows -1)
 					this.edges.add(new Edge(gameboard[y][x], gameboard[y+1][x-1], (float) Math.sqrt(2)));
 */			}
+		getStartNode().unuse();
+		getFinishNode().unuse();
 	
 	}
 	
@@ -95,12 +99,28 @@ public class GameBoard {
 		return getNode(this.rows-1,this.columns-1);
 	}
 	
+	public Node getFinishNode(){
+		return getNode(rows/2, this.columns-1);
+	}
+	
+	public Node getStartNode(){
+		return getNode(rows/2, 0);
+	}
+	
 	public void render(Graphics g){
-		Node temp = getNode(0,0);
+		Node temp = getStartNode();
 		g.setColor( new Color(0,255,0));
 		g.fillRect((int) (temp.x-nodeSize*.5),(int) (temp.y-nodeSize*.5), nodeSize, nodeSize);
-		temp = getMaxNode();
+		temp = getFinishNode();
 		g.setColor( new Color(255,0,0));
 		g.fillRect((int) (temp.x-nodeSize*.5),(int) (temp.y-nodeSize*.5), nodeSize, nodeSize);
+		g.setColor( new Color(160,82,45));
+		for(int y=0; y<rows; y++)
+			for(int x=0; x<columns; x++){
+				if(gameboard[y][x].isUsed()){
+					temp = gameboard[y][x];
+					g.fillRect((int) (temp.x-nodeSize*.5),(int) (temp.y-nodeSize*.5), nodeSize, nodeSize);
+				}
+			}
 	}
 }

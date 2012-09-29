@@ -25,7 +25,9 @@ public class JRTD implements Runnable{
    JFrame frame;
    Canvas canvas;
    Canvas canvas2;
-   BufferStrategy bufferStrategy;
+   BufferStrategy gameBuffer;
+   BufferStrategy infoBuffer;
+
    Random random = new Random();
    
    public JRTD(){
@@ -40,8 +42,8 @@ public class JRTD implements Runnable{
       canvas.setBounds(5, 160, WIDTH, HEIGHT);
       canvas.setIgnoreRepaint(true);
       canvas2 = new Canvas();
-      canvas2.setIgnoreRepaint(true);
       canvas2.setBounds(5, 5, WIDTH, 150);
+      canvas2.setIgnoreRepaint(true);
       panel.add(canvas2);
       panel.add(canvas);
       
@@ -55,9 +57,11 @@ public class JRTD implements Runnable{
       frame.pack();
       frame.setResizable(false);
       frame.setVisible(true);
-      
+
       canvas.createBufferStrategy(2);
-      bufferStrategy = canvas.getBufferStrategy();
+      gameBuffer = canvas.getBufferStrategy();
+      canvas2.createBufferStrategy(2);
+      infoBuffer = canvas2.getBufferStrategy();
       
       canvas.requestFocus();
    }
@@ -101,9 +105,11 @@ public class JRTD implements Runnable{
    int maxTowers = 10;
    int spawnDelay = 500;
    int timeWaited = 0;
+   int lives = 20;
    boolean canPlaceTowers = true;
    boolean recalculatePaths = false;
    boolean gameStarted = false;
+   boolean redrawInfo = true;
     
    boolean running = true;
    
@@ -141,15 +147,22 @@ public class JRTD implements Runnable{
    }
    
    private void render() {
-	  Graphics2D g2 = (Graphics2D) canvas2.getGraphics();
-	  g2.setBackground( Color.WHITE );
-	  g2.clearRect(0, 0, WIDTH, 150);
-      Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
+      Graphics2D g = (Graphics2D) gameBuffer.getDrawGraphics();
       g.setBackground( new Color(255,255,255));
       g.clearRect(0, 0, WIDTH, HEIGHT);
       render(g);
       g.dispose();
-      bufferStrategy.show();
+ //     if(redrawInfo){
+    	  Graphics2D g2 = (Graphics2D) infoBuffer.getDrawGraphics();
+    	  g2.setBackground( new Color(255,255,255));
+    	  g2.clearRect(0, 0, WIDTH, 150); 
+    	  renderInfo(g2);
+    	  g2.dispose();
+    	  infoBuffer.show();
+ //   	  redrawInfo = false;
+ //     } 	  
+      gameBuffer.show();
+
    }
    
    List<Tower> towers = new CopyOnWriteArrayList<Tower>();
@@ -176,7 +189,7 @@ public class JRTD implements Runnable{
 		   }
 		   if(enemies.size() < maxEnemies)
 			   if(timeWaited >= spawnDelay){
-				   	enemies.add(new Enemy(gameBoard.getNode(0,0), gameBoard.getMaxNode(),100));
+				   	enemies.add(new Enemy(gameBoard.getStartNode(), gameBoard.getFinishNode(),100));
 		   			timeWaited = 0;
 			   }
 		   for(Tower tower : towers){
@@ -205,6 +218,12 @@ public class JRTD implements Runnable{
 		   node.render(g);
 	   
 //	   gameBoard.renderEdges(g);
+   }
+   
+   protected void renderInfo(Graphics2D g){
+	   g.setColor(Color.BLUE);
+	   g.drawString("Lives :" + this.lives,10,10);
+	   g.drawString("Towers :" + this.towers.size(), 10, 30);
    }
    
    public static void main(String [] args){
