@@ -3,6 +3,8 @@ package com.jeffreyregalia;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.List;
 
 public class Tower implements Entity{
@@ -21,6 +23,8 @@ public class Tower implements Entity{
 	int power = 1;
 	Projectile shot = null;
 	boolean selected;
+	private SpriteManager spriteManager;
+	private BufferedImage  towerSprite;
 	
 	Tower(int size, int radius, Node myNode){
 		this.size = size;
@@ -29,6 +33,12 @@ public class Tower implements Entity{
 		this.x = myNode.x;
 		this.y = myNode.y;
 		this.selected = true;
+		try{
+			spriteManager = new SpriteManager();
+			towerSprite = spriteManager.getSprite(SpriteManager.BASE_TOWER);
+		} catch(IOException ex){
+			
+		}
 	}
 	
 	public void update(int time){
@@ -65,11 +75,12 @@ public class Tower implements Entity{
 	
 	public void render(Graphics g){
 		//draw tower
-		if(!attacked && this.timeSinceAttack == this.attackTime)
+		/*if(!attacked && this.timeSinceAttack == this.attackTime)
 			g.setColor( new Color (150, 150, 0));
 		else
 			g.setColor( new Color(0,0,0));
-		g.fillRect(x-size/2, y-size/2, size, size);
+		g.fillRect(x-size/2, y-size/2, size, size);*/
+		g.drawImage(towerSprite, x-size/2, y-size/2, null);
 		//draw radius
 		if(this.selected){
 			g.setColor( new Color(100,200,100));

@@ -2,6 +2,8 @@ package com.jeffreyregalia;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class GameBoard {
@@ -10,6 +12,8 @@ public class GameBoard {
 	private final int rows;
 	private final int columns;
 	private final int nodeSize = 32;
+	private SpriteManager spriteManager;
+	private BufferedImage  blockSprite;
 	
 	public GameBoard(int width, int height){
 		this.rows = height/nodeSize;
@@ -44,6 +48,13 @@ public class GameBoard {
 */			}
 		getStartNode().unuse();
 		getFinishNode().unuse();
+		
+		try{
+			spriteManager = new SpriteManager();
+			blockSprite = spriteManager.getSprite(SpriteManager.WALL_BLOCK);
+		} catch(IOException ex){
+			
+		}
 	
 	}
 	
@@ -119,7 +130,8 @@ public class GameBoard {
 			for(int x=0; x<columns; x++){
 				if(gameboard[y][x].isUsed()){
 					temp = gameboard[y][x];
-					g.fillRect((int) (temp.x-nodeSize*.5),(int) (temp.y-nodeSize*.5), nodeSize, nodeSize);
+					//g.fillRect((int) (temp.x-nodeSize*.5),(int) (temp.y-nodeSize*.5), nodeSize, nodeSize);
+					g.drawImage(blockSprite,(int) (temp.x-nodeSize*.5),(int) (temp.y-nodeSize*.5), null);
 				}
 			}
 	}
