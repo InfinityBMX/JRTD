@@ -19,8 +19,8 @@ import javax.swing.JPanel;
 
 public class JRTD implements Runnable{
    
-   final int WIDTH = 1024;
-   final int HEIGHT = 768;
+   final int WIDTH = 800;
+   final int HEIGHT = 544;
 
    JFrame frame;
    Canvas canvas;
@@ -31,7 +31,12 @@ public class JRTD implements Runnable{
    Random random = new Random();
    
    public JRTD(){
-      frame = new JFrame("Basic Game");
+      try{
+          spriteManager = new SpriteManager();
+      } catch(Exception ex){
+    	  System.exit(1);
+      }
+	   frame = new JFrame("JRTD");
       
       JPanel panel = (JPanel) frame.getContentPane();
       panel.setPreferredSize(new Dimension(WIDTH, HEIGHT+155));
@@ -62,7 +67,7 @@ public class JRTD implements Runnable{
       gameBuffer = canvas.getBufferStrategy();
       canvas2.createBufferStrategy(2);
       infoBuffer = canvas2.getBufferStrategy();
-      
+            
       canvas.requestFocus();
    }
    
@@ -120,6 +125,8 @@ public class JRTD implements Runnable{
       long currentUpdateTime = System.nanoTime();
       long lastUpdateTime;
       long deltaLoop;
+      cursorTower = new FakeTower(spriteManager);
+      gameBoard = new GameBoard(WIDTH,HEIGHT,spriteManager);
       
       while(running){
          beginLoopTime = System.nanoTime();
@@ -167,8 +174,9 @@ public class JRTD implements Runnable{
    
    List<Tower> towers = new CopyOnWriteArrayList<Tower>();
    List<Enemy> enemies = new CopyOnWriteArrayList<Enemy>();
-   GameBoard gameBoard = new GameBoard(WIDTH,HEIGHT);
-   FakeTower cursorTower = new FakeTower();
+   GameBoard gameBoard;
+   FakeTower cursorTower;
+   SpriteManager spriteManager;
 
    protected void update(int deltaTime){
 	   timeWaited += deltaTime;
@@ -237,7 +245,7 @@ public class JRTD implements Runnable{
 	   if(placementNode.isUsed())
 		   return false;
 	   
-	   towers.add(new Tower(size,radius,placementNode));
+	   towers.add(new Tower(size,radius,placementNode,spriteManager));
 	   placementNode.use();
 
 	   return true;

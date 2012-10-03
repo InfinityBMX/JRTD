@@ -7,11 +7,17 @@ public class FakeTower implements Entity {
 	private int x = 0;
 	private int y = 0;
 	private final int size = 32;
+	private Sprite towerSprite;
+	
+	FakeTower(SpriteManager spriteManager){
+		this.towerSprite = spriteManager.getSprite(SpriteManager.FAKE_TOWER);
+	}
 	
 	public void render(Graphics g){
+		g.drawImage(towerSprite.getImage(), x-size/2, y-size/2, null);
 //		if(x != 0 && y != 0){
-			g.setColor( new Color(200,200,200));
-			g.fillRect(x-size/2, y-size/2, size, size);
+//			g.setColor( new Color(200,200,200));
+//			g.fillRect(x-size/2, y-size/2, size, size);
 //		}
 	}
 	public void update(int time){

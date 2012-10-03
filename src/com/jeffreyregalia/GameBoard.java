@@ -12,10 +12,9 @@ public class GameBoard {
 	private final int rows;
 	private final int columns;
 	private final int nodeSize = 32;
-	private SpriteManager spriteManager;
-	private BufferedImage  blockSprite;
+	private Sprite blockSprite;
 	
-	public GameBoard(int width, int height){
+	public GameBoard(int width, int height, SpriteManager spriteManager){
 		this.rows = height/nodeSize;
 		this.columns = width/nodeSize;
 		this.gameboard = new Node[rows][columns];
@@ -49,13 +48,7 @@ public class GameBoard {
 		getStartNode().unuse();
 		getFinishNode().unuse();
 		
-		try{
-			spriteManager = new SpriteManager();
-			blockSprite = spriteManager.getSprite(SpriteManager.WALL_BLOCK);
-		} catch(IOException ex){
-			
-		}
-	
+		blockSprite = spriteManager.getSprite(SpriteManager.WALL_BLOCK);
 	}
 	
 	public ArrayList<Node> getNodeList(){
@@ -131,7 +124,7 @@ public class GameBoard {
 				if(gameboard[y][x].isUsed()){
 					temp = gameboard[y][x];
 					//g.fillRect((int) (temp.x-nodeSize*.5),(int) (temp.y-nodeSize*.5), nodeSize, nodeSize);
-					g.drawImage(blockSprite,(int) (temp.x-nodeSize*.5),(int) (temp.y-nodeSize*.5), null);
+					g.drawImage(blockSprite.getImage(),(int) (temp.x-nodeSize*.5),(int) (temp.y-nodeSize*.5), null);
 				}
 			}
 	}

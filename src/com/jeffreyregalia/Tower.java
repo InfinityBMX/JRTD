@@ -23,22 +23,16 @@ public class Tower implements Entity{
 	int power = 1;
 	Projectile shot = null;
 	boolean selected;
-	private SpriteManager spriteManager;
-	private BufferedImage  towerSprite;
+	private Sprite  towerSprite;
 	
-	Tower(int size, int radius, Node myNode){
+	Tower(int size, int radius, Node myNode, SpriteManager spriteManager){
 		this.size = size;
 		this.radius = radius;
 		this.myNode = myNode;
 		this.x = myNode.x;
 		this.y = myNode.y;
 		this.selected = true;
-		try{
-			spriteManager = new SpriteManager();
-			towerSprite = spriteManager.getSprite(SpriteManager.BASE_TOWER);
-		} catch(IOException ex){
-			
-		}
+		this.towerSprite = spriteManager.getSprite(SpriteManager.BASE_TOWER);
 	}
 	
 	public void update(int time){
@@ -80,7 +74,7 @@ public class Tower implements Entity{
 		else
 			g.setColor( new Color(0,0,0));
 		g.fillRect(x-size/2, y-size/2, size, size);*/
-		g.drawImage(towerSprite, x-size/2, y-size/2, null);
+		g.drawImage(towerSprite.getImage(), x-size/2, y-size/2, null);
 		//draw radius
 		if(this.selected){
 			g.setColor( new Color(100,200,100));
