@@ -21,19 +21,44 @@ public class JRTD implements Runnable{
    
    final int WIDTH = 800;
    final int HEIGHT = 544;
+   final long desiredFPS = 60;
+   final long desiredDeltaLoop = (1000*1000*1000)/desiredFPS;
 
    JFrame frame;
    Canvas canvas;
    Canvas canvas2;
    BufferStrategy gameBuffer;
    BufferStrategy infoBuffer;
+   
+   List<Tower> towers = new CopyOnWriteArrayList<Tower>();
+   List<Enemy> enemies = new CopyOnWriteArrayList<Enemy>();
+   GameBoard gameBoard;
+   FakeTower cursorTower;
+   Tower selectedTower;
+   SpriteManager spriteManager;
+   
+   int maxEnemies = 15;
+   int maxTowers = 20;
+   int currentRound = 1;
+   int spawnDelay = 500;
+   int timeWaited = 0;
+   int lives = 20;
+   int money = 10;
+   
+   boolean canPlaceTowers = true;
+   boolean recalculatePaths = false;
+   boolean gameStarted = false;
+   boolean redrawInfo = true;
+   boolean running = true;
 
    Random random = new Random();
    
    public JRTD(){
       try{
-          spriteManager = new SpriteManager();
+          spriteManager = new SpriteManager(SpriteManager.TOWER_FILE);
       } catch(Exception ex){
+    	  System.out.println("Failed to load Sprites");
+    	  System.out.println("Exiting");
     	  System.exit(1);
       }
 	   frame = new JFrame("JRTD");
@@ -74,11 +99,28 @@ public class JRTD implements Runnable{
    private class KeyControl extends KeyAdapter{
 	   public void keyPressed(KeyEvent e){
 		   switch (e.getKeyCode()) {
-		   		case KeyEvent.VK_ESCAPE: running = false;
+		   		case KeyEvent.VK_ESCAPE: 
+		   				running = false;
 		   				break;
-		   		case KeyEvent.VK_ENTER: canPlaceTowers = false;
+		   		case KeyEvent.VK_ENTER: 
+		   				canPlaceTowers = false;
 		   				gameStarted = true;
 		   				cursorTower = null;
+		   				money += maxTowers - towers.size();
+		   				break;
+		   		case KeyEvent.VK_P:
+		   				if(selectedTower != null)
+		   					if(money >= selectedTower.getPowerUpgradeCost()){
+		   						money-= selectedTower.getPowerUpgradeCost();
+		   						selectedTower.increasePower(2);
+		   					}
+		   				break;
+		   		case KeyEvent.VK_R:
+		   				if(selectedTower != null)
+		   					if(money >= selectedTower.getRadiusUpgradeCost()){
+		   						money-= selectedTower.getRadiusUpgradeCost();
+		   						selectedTower.increaseRadius(10);
+		   					}
 		   				break;
 		   }
 	   }
@@ -86,13 +128,31 @@ public class JRTD implements Runnable{
    
    private class MouseControl extends MouseAdapter{
       public void mouseClicked(MouseEvent e){
+    	  Node cursorNode = gameBoard.getNodeAtLocation(e.getX(), e.getY());
     	  if(canPlaceTowers){
-			  Node placementNode = gameBoard.getNodeAtLocation(e.getX(), e.getY());
-    		  addTower(32,150,placementNode);
+    		  addTower(32,150,cursorNode);
     		  //recalculatePaths = true;
     	  } else {
     		  gameStarted = true;
     	  }
+    	  
+    	  boolean clickedTower = false;
+    	  for(Tower tower : towers){
+    		  if(tower.isAt(cursorNode)){
+    			  clickedTower = true;
+    			  if(selectedTower != null)
+    				  selectedTower.unselectTower();
+    			  selectedTower = tower;
+    			  selectedTower.selectTower();
+    			  break;
+    		  }
+    	  }
+    	  
+    	  if(!clickedTower)
+    		  if(selectedTower != null){
+    			  selectedTower.unselectTower();
+    			  selectedTower = null;
+    		  }
       }
       
       public void mouseMoved(MouseEvent e){
@@ -103,21 +163,7 @@ public class JRTD implements Runnable{
     		  }
       }
    }
-   
-   long desiredFPS = 60;
-   long desiredDeltaLoop = (1000*1000*1000)/desiredFPS;
-   int maxEnemies = 5;
-   int maxTowers = 10;
-   int spawnDelay = 500;
-   int timeWaited = 0;
-   int lives = 20;
-   boolean canPlaceTowers = true;
-   boolean recalculatePaths = false;
-   boolean gameStarted = false;
-   boolean redrawInfo = true;
-    
-   boolean running = true;
-   
+
    public void run(){
       
       long beginLoopTime;
@@ -161,7 +207,7 @@ public class JRTD implements Runnable{
       g.dispose();
  //     if(redrawInfo){
     	  Graphics2D g2 = (Graphics2D) infoBuffer.getDrawGraphics();
-    	  g2.setBackground( new Color(255,255,255));
+    	  g2.setBackground( new Color(230,230,230));
     	  g2.clearRect(0, 0, WIDTH, 150); 
     	  renderInfo(g2);
     	  g2.dispose();
@@ -172,12 +218,6 @@ public class JRTD implements Runnable{
 
    }
    
-   List<Tower> towers = new CopyOnWriteArrayList<Tower>();
-   List<Enemy> enemies = new CopyOnWriteArrayList<Enemy>();
-   GameBoard gameBoard;
-   FakeTower cursorTower;
-   SpriteManager spriteManager;
-
    protected void update(int deltaTime){
 	   timeWaited += deltaTime;
 	   if(gameStarted){
@@ -185,7 +225,13 @@ public class JRTD implements Runnable{
 			   if(recalculatePaths){
 				   enemies.get(i).recalculatePath();
 			   }
-			   if(!enemies.get(i).isAlive()) enemies.remove(i);
+			   if(!enemies.get(i).isAlive()){
+				   int value = enemies.get(i).getValue();
+				   money += value;
+				   if(value == 0)
+					   this.lives--;
+				   enemies.remove(i);
+			   }
 		   }
 		   recalculatePaths = false;
 		   if(!enemies.isEmpty()){
@@ -229,9 +275,19 @@ public class JRTD implements Runnable{
    }
    
    protected void renderInfo(Graphics2D g){
-	   g.setColor(Color.BLUE);
-	   g.drawString("Lives :" + this.lives,10,10);
-	   g.drawString("Towers :" + this.towers.size(), 10, 30);
+	   g.setColor(Color.BLACK);
+	   g.drawString("Round :" + this.currentRound , 10, 20);
+	   g.drawString("Lives :" + this.lives,10,40);
+	   g.drawString("$"+ this.money, 10, 60);
+	   g.drawString("Towers :" + this.towers.size(), 10, 80);
+	   if(selectedTower != null){
+		   g.drawString("Selected Tower", 175, 20);
+		   g.drawImage(selectedTower.getImage(), 175, 30, null);
+		   g.drawString("Power: " + selectedTower.getPower(), 210, 40);
+		   g.drawString("Radius: " + selectedTower.getRadius(), 210, 60);
+		   g.drawString("Next Power Upgrade: " + selectedTower.getPowerUpgradeCost(), 210, 80);
+		   g.drawString("Next Radius Upgrade: " + selectedTower.getRadiusUpgradeCost(), 210, 100);
+	   }
    }
    
    public static void main(String [] args){

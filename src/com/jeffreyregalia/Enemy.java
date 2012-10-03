@@ -10,6 +10,7 @@ public class Enemy implements Entity{
 	int y;
 	int size;
 	int hp;
+	int value;
 	final int maxHp;
 	Node targetNode;
 	Node currentNode;
@@ -27,6 +28,7 @@ public class Enemy implements Entity{
 		this.finishNode = finishNode;
 		this.hp = hp;
 		this.maxHp = hp;
+		this.value = 1;
 		//this.size = (int) (hp*2);
 		this.size = 16;
 		path = (LinkedList<Node>) finder.search(this.currentNode, new FinishLine(finishNode));
@@ -98,6 +100,15 @@ public class Enemy implements Entity{
 	
 	public void leaked(){
 		this.hp = 0;
+		this.value = 0;
+	}
+	
+	public int getValue(){
+		return this.value;
+	}
+	
+	public void setValue(int value){
+		this.value = value;
 	}
 	
 	public Node getNode(){
@@ -112,5 +123,9 @@ public class Enemy implements Entity{
 		path = (LinkedList<Node>) finder.search(this.currentNode, new FinishLine(finishNode));
 		pathIndex = 0;
 		targetNode = path.get(pathIndex);
+	}
+	
+	public Node getFinishNode(){
+		return this.finishNode;
 	}
 }

@@ -4,11 +4,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.List;
 
 public class Tower implements Entity{
-	int size;
+	private int size;
 	int radius;
 	int x;
 	int y;
@@ -23,7 +22,10 @@ public class Tower implements Entity{
 	int power = 1;
 	Projectile shot = null;
 	boolean selected;
-	private Sprite  towerSprite;
+	private int powerUpgrades = 0;
+	private int radiusUpgrades = 0;
+	private Sprite towerSprite;
+	private BufferedImage currentImage;
 	
 	Tower(int size, int radius, Node myNode, SpriteManager spriteManager){
 		this.size = size;
@@ -31,8 +33,9 @@ public class Tower implements Entity{
 		this.myNode = myNode;
 		this.x = myNode.x;
 		this.y = myNode.y;
-		this.selected = true;
+		this.selected = false;
 		this.towerSprite = spriteManager.getSprite(SpriteManager.BASE_TOWER);
+		this.currentImage = this.towerSprite.getImage();
 	}
 	
 	public void update(int time){
@@ -44,7 +47,7 @@ public class Tower implements Entity{
 			this.targetPoint = null;
 		}else{
 			if(this.timeSinceAttack == this.attackTime){
-				if(shot == null){
+				if(this.shot == null){
 					if(this.target.getHP() < 1){
 						this.target = null;
 					}else{
@@ -65,46 +68,25 @@ public class Tower implements Entity{
 		}
 		// fire?
 		// rotate gun?
+		this.currentImage = towerSprite.getImage();
 	}
 	
 	public void render(Graphics g){
 		//draw tower
-		/*if(!attacked && this.timeSinceAttack == this.attackTime)
-			g.setColor( new Color (150, 150, 0));
-		else
-			g.setColor( new Color(0,0,0));
-		g.fillRect(x-size/2, y-size/2, size, size);*/
-		g.drawImage(towerSprite.getImage(), x-size/2, y-size/2, null);
+		g.drawImage(this.currentImage, this.x-this.size/2, this.y-this.size/2, null);
 		//draw radius
 		if(this.selected){
 			g.setColor( new Color(100,200,100));
-			g.drawOval(x-radius, y-radius, radius*2, radius*2);
+			g.drawOval(this.x-this.radius, this.y-this.radius, this.radius*2, this.radius*2);
 		}
 
-		
-		if(shot != null)
-			shot.render(g);
-/*		if(targetPoint != null){
-			//if(attacked){
-				g.setColor( new Color(0,0,0));
-				g.drawLine(x,y,(int) targetPoint.getX(),(int) targetPoint.getY());
-				attackFrames++;
-				if(attackFrames > 5){
-					attackFrames = 0;
-					this.attacked = false;
-				}
-			//}
-//			g.drawString("TX: " + targetPoint.getX() + " TY: " + targetPoint.getY(), 50, 90);
-		} else {
-			this.attacked = false;
-		}
-//		g.drawString("Distance: "+this.targetDistance,50,50);
-//		g.drawString("X: " + x + " Y: " + y, x, y);*/
+		if(this.shot != null)
+			this.shot.render(g);
 	}
 	
 	public void findTarget(List<Enemy> enemyList){
 		double tempDistance = 0.0;
-		if(target==null){
+		if(this.target==null){
 			for(Enemy enemy: enemyList){
 				for(Point point: enemy.getHitBox()){
 					double distance = Math.sqrt((x-point.getX())*(x-point.getX())+(y-point.getY())*(y-point.getY()));
@@ -160,5 +142,43 @@ public class Tower implements Entity{
 	
 	public void selectTower(){
 		this.selected = true;
+	}
+	
+	public void unselectTower(){
+		this.selected = false;
+	}
+	
+	public boolean isAt(Node myNode){
+		return this.myNode.equals(myNode);
+	}
+	
+	public BufferedImage getImage(){
+		return this.currentImage;
+	}
+	
+	public int getPowerUpgradeCost(){
+		return (int) Math.pow(2, this.powerUpgrades);
+	}
+	
+	public int getRadiusUpgradeCost(){
+		return (int) Math.pow(2, this.radiusUpgrades);
+	}
+	
+	public void increasePower(int bonusPower){
+		this.power += bonusPower;
+		this.powerUpgrades++;
+	}
+	
+	public void increaseRadius(int bonusRadius){
+		this.radius += bonusRadius;
+		this.radiusUpgrades++;
+	}
+
+	public int getRadius() {
+		return this.radius;
+	}
+
+	public int getPower() {
+		return this.power;
 	}
 }

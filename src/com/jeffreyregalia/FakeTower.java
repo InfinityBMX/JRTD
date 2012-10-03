@@ -1,6 +1,5 @@
 package com.jeffreyregalia;
 
-import java.awt.Color;
 import java.awt.Graphics;
 
 public class FakeTower implements Entity {
@@ -15,10 +14,6 @@ public class FakeTower implements Entity {
 	
 	public void render(Graphics g){
 		g.drawImage(towerSprite.getImage(), x-size/2, y-size/2, null);
-//		if(x != 0 && y != 0){
-//			g.setColor( new Color(200,200,200));
-//			g.fillRect(x-size/2, y-size/2, size, size);
-//		}
 	}
 	public void update(int time){
 		// We don't do anything based on time
