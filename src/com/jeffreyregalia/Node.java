@@ -40,10 +40,16 @@ public class Node {
 	}
 	
 	public boolean isAvailableForPathing(){
-//		for(Edge edge : edges){
-//			if(edge.dst.isUsed())
-//				return false;
-//		}
-		return true;
+		boolean hasGoodEdge = false;
+		for(Edge edge : edges){
+			if(!edge.dst.isUsed())
+				hasGoodEdge = true;
+		}
+		return hasGoodEdge;
+	}
+
+	@Override
+	public String toString() {
+		return "Node[" + x + "," + y + " used=" + used + "]";
 	}
 }

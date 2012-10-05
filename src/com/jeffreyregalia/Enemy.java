@@ -16,7 +16,7 @@ public class Enemy implements Entity{
 	Node currentNode;
 	Node finishNode;
 	LinkedList<Node> path;
-	PathFinder finder = new PathFinder();
+	LinkedList<Node> tempPath;
 	int pathIndex = 0;
 	double moveSpeed;
 	double moved;
@@ -31,8 +31,9 @@ public class Enemy implements Entity{
 		this.value = 1;
 		//this.size = (int) (hp*2);
 		this.size = 16;
-		path = (LinkedList<Node>) finder.search(this.currentNode, new FinishLine(finishNode));
+		path = (LinkedList<Node>) new PathFinder().search(this.currentNode, new FinishLine(finishNode));
 		targetNode = path.get(pathIndex);
+		this.moveSpeed = .1;
 	}
 	
 	public void attack(int damage){
@@ -46,7 +47,7 @@ public class Enemy implements Entity{
 	public void update(int time){
 		int xDirection = this.x < this.targetNode.x ? 1 : (this.x == this.targetNode.x ? 0 : -1);
 		int yDirection = this.y < this.targetNode.y ? 1 : (this.y == this.targetNode.y ? 0 : -1);
-		this.moveSpeed = xDirection != 0 && yDirection != 0 ? Math.sqrt((.1*.1)/2) : .1;
+		//this.moveSpeed = xDirection != 0 && yDirection != 0 ? Math.sqrt((.1*.1)/2) : .1;
 		this.moved = xDirection * time * this.moveSpeed;
 		this.x += xDirection * time * this.moveSpeed;
 		this.y += yDirection * time * this.moveSpeed;
@@ -119,10 +120,19 @@ public class Enemy implements Entity{
 		return this.targetNode;
 	}
 	
-	public void recalculatePath(){
-		path = (LinkedList<Node>) finder.search(this.currentNode, new FinishLine(finishNode));
-		pathIndex = 0;
-		targetNode = path.get(pathIndex);
+	public boolean recalculatePath(){
+		this.moveSpeed = 0.0;
+		tempPath = (LinkedList<Node>) new PathFinder().search(this.targetNode, new FinishLine(finishNode));
+		if(tempPath == null)
+			return false;
+		return true;
+	}
+	
+	public void finalizeRecalculate(){
+		this.path = this.tempPath;
+		this.pathIndex = 0;
+		this.targetNode = this.path.get(this.pathIndex);
+		this.moveSpeed = .1;
 	}
 	
 	public Node getFinishNode(){

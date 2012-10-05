@@ -19,8 +19,8 @@ import javax.swing.JPanel;
 
 public class JRTD implements Runnable{
    
-   final int WIDTH = 800;
-   final int HEIGHT = 544;
+   final int WIDTH = 320;
+   final int HEIGHT = 160;
    final long desiredFPS = 60;
    final long desiredDeltaLoop = (1000*1000*1000)/desiredFPS;
 
@@ -50,6 +50,8 @@ public class JRTD implements Runnable{
    boolean gameStarted = false;
    boolean redrawInfo = true;
    boolean running = true;
+   boolean paused = false;
+   boolean gameover = false;
 
    Random random = new Random();
    
@@ -103,24 +105,27 @@ public class JRTD implements Runnable{
 		   				running = false;
 		   				break;
 		   		case KeyEvent.VK_ENTER: 
-		   				canPlaceTowers = false;
+		   			//	canPlaceTowers = false;
 		   				gameStarted = true;
-		   				cursorTower = null;
+		   			//	cursorTower = null;
 		   				money += maxTowers - towers.size();
 		   				break;
 		   		case KeyEvent.VK_P:
-		   				if(selectedTower != null)
+		   				if(selectedTower != null && !paused)
 		   					if(money >= selectedTower.getPowerUpgradeCost()){
 		   						money-= selectedTower.getPowerUpgradeCost();
 		   						selectedTower.increasePower(2);
 		   					}
 		   				break;
 		   		case KeyEvent.VK_R:
-		   				if(selectedTower != null)
+		   				if(selectedTower != null && !paused)
 		   					if(money >= selectedTower.getRadiusUpgradeCost()){
 		   						money-= selectedTower.getRadiusUpgradeCost();
 		   						selectedTower.increaseRadius(10);
 		   					}
+		   				break;
+		   		case KeyEvent.VK_SPACE:
+		   				paused = !paused;
 		   				break;
 		   }
 	   }
@@ -128,31 +133,38 @@ public class JRTD implements Runnable{
    
    private class MouseControl extends MouseAdapter{
       public void mouseClicked(MouseEvent e){
-    	  Node cursorNode = gameBoard.getNodeAtLocation(e.getX(), e.getY());
-    	  if(canPlaceTowers){
-    		  addTower(32,150,cursorNode);
-    		  //recalculatePaths = true;
-    	  } else {
-    		  gameStarted = true;
+    	  if(!paused){
+    		  boolean addedTower = false;
+	    	  Node cursorNode = gameBoard.getNodeAtLocation(e.getX(), e.getY());
+	    	  if(canPlaceTowers){
+	    		  addedTower = addTower(32,150,cursorNode);
+	    		  //recalculatePaths = true;
+	    	  } else {
+	    		  gameStarted = true;
+	    	  }
+	    	  
+	    	  // If we just added a tower, don't select it
+	    	  if(!addedTower){
+	    		  boolean clickedTower = false;
+		    	  for(Tower tower : towers){
+		    		  if(tower.isAt(cursorNode)){
+		    			  clickedTower = true;
+		    			  if(selectedTower != null)
+		    				  selectedTower.unselectTower();
+		    			  selectedTower = tower;
+		    			  selectedTower.selectTower();
+		    			  break;
+		    		  }
+		    	  }
+	    	  
+		    	  if(!clickedTower)
+		    		  if(selectedTower != null){
+		    			  selectedTower.unselectTower();
+		    			  selectedTower = null;
+		    			  cursorTower = new FakeTower(spriteManager);
+		    		  }
+	    	  }
     	  }
-    	  
-    	  boolean clickedTower = false;
-    	  for(Tower tower : towers){
-    		  if(tower.isAt(cursorNode)){
-    			  clickedTower = true;
-    			  if(selectedTower != null)
-    				  selectedTower.unselectTower();
-    			  selectedTower = tower;
-    			  selectedTower.selectTower();
-    			  break;
-    		  }
-    	  }
-    	  
-    	  if(!clickedTower)
-    		  if(selectedTower != null){
-    			  selectedTower.unselectTower();
-    			  selectedTower = null;
-    		  }
       }
       
       public void mouseMoved(MouseEvent e){
@@ -181,7 +193,8 @@ public class JRTD implements Runnable{
          
          lastUpdateTime = currentUpdateTime;
          currentUpdateTime = System.nanoTime();
-         update((int) ((currentUpdateTime - lastUpdateTime)/(1000*1000)));
+         if(!paused)
+        	 update((int) ((currentUpdateTime - lastUpdateTime)/(1000*1000)));
          
          endLoopTime = System.nanoTime();
          deltaLoop = endLoopTime - beginLoopTime;
@@ -295,11 +308,34 @@ public class JRTD implements Runnable{
 	   new Thread(ex).start();
    }
 
-   // Check gameboard for obstacles and add tower if none exist
-   public boolean addTower(int size, int radius, Node placementNode){
 
-	   if(placementNode.isUsed())
+   public boolean addTower(int size, int radius, Node placementNode){
+	   boolean blocksPath = false;
+	   
+	   // Check gameboard for obstacles and add tower if none exist
+	   if(placementNode.isUsed()){
+		   System.out.println("Node used");
 		   return false;
+	   }
+	   
+	   if(gameBoard.blocksPath(placementNode)){
+		   System.out.println("Blocks map path");
+		   return false;
+	   }
+	   
+	   // Make sure enemies can reach exit
+	   int listSize = enemies.size();
+	   for(int i = 0; i < listSize; i++){
+			   blocksPath = blocksPath || !enemies.get(i).recalculatePath();
+	   }
+	   
+	   if(blocksPath){
+		   System.out.println("blocks enemy path");
+		   return false;
+	   }
+		   
+	   for(int i = 0; i < listSize; i++)   
+		   enemies.get(i).finalizeRecalculate();
 	   
 	   towers.add(new Tower(size,radius,placementNode,spriteManager));
 	   placementNode.use();

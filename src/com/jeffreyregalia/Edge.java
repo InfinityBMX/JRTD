@@ -20,4 +20,11 @@ public class Edge {
 		g.setColor( new Color(155,155,155));
 		g.drawLine(src.x,src.y,dst.x,dst.y);
 	}
+
+	@Override
+	public String toString() {
+		return "Edge[dst=" + dst + ", src=" + src + ", wt=" + weight + "]";
+	}
+	
+	
 }

@@ -17,6 +17,7 @@ public class PathFinder {
 	
 	public List<Node> search(Node start, Filter<Node> target){
 		this.frontline.add(start);
+		System.out.println("starting search");
 		
 		while(!this.frontline.isEmpty()){
 			Node found = this.step(target);
@@ -31,6 +32,7 @@ public class PathFinder {
 	
 	public Node step(Filter<Node> target){
 		Node head = this.frontline.pollFirst();
+		System.out.println("step head:"+head);
 		if(head == null || head.isUsed() || !head.isAvailableForPathing())
 			return null;
 		
@@ -52,7 +54,7 @@ public class PathFinder {
 			this.setAccumulatedWeight(edge.dst, curr);
 			this.frontline.add(edge.dst);
 		}
-		
+		System.out.println("added to frontline");
 		return null;
 	}
 	
@@ -75,6 +77,7 @@ public class PathFinder {
 				if(best == null || this.getAccumulatedWeight(edge.src) < this.getAccumulatedWeight(best.src))
 					best = edge;
 		}
+		System.out.println(node);
 		if(best == null)
 			throw new IllegalStateException();
 		return best.src;

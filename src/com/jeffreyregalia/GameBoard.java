@@ -3,6 +3,7 @@ package com.jeffreyregalia;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class GameBoard {
 	private final Node[][] gameboard;
@@ -107,6 +108,17 @@ public class GameBoard {
 	
 	public Node getStartNode(){
 		return getNode(rows/2, 0);
+	}
+	
+	public boolean blocksPath(Node newNode){
+		newNode.use();
+		LinkedList<Node> tempPath = (LinkedList<Node>) new PathFinder().search(getStartNode(), new FinishLine(getFinishNode()));
+		newNode.unuse();
+		
+		if(tempPath == null)
+			return true;
+		
+		return false;
 	}
 	
 	public void render(Graphics g){
